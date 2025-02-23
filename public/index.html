@@ -131,13 +131,23 @@
         // Add this function to get the API URL
         async function initializeConfig() {
             try {
+                console.log('Fetching config...');
                 const response = await fetch('/api/config');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const config = await response.json();
+                console.log('Config received:', config);
                 API_URL = config.apiUrl;
+                document.getElementById('submitButton').disabled = false;
             } catch (error) {
                 console.error('Error loading config:', error);
-                // Fallback to current origin if config fails to load
+                // Use current origin as fallback
                 API_URL = window.location.origin;
+                document.getElementById('submitButton').disabled = false;
+                // Show error to user
+                document.getElementById('results').innerHTML =
+                    `<p class="error">Server connection error: ${error.message}. Using ${API_URL} as fallback.</p>`;
             }
         }
 
@@ -159,7 +169,13 @@
             }
 
             try {
+                console.log('Sending search request to:', `${API_URL}/api/search`);
                 const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(searchInput)}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 if (data.error) {
