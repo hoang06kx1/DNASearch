@@ -111,7 +111,7 @@
         <h2>Microalgae Identification Tool</h2>
         <p>Paste ITS2 sequence into the text area below</p>
         <textarea id="searchInput" placeholder=">sample sequence A\nctaaattgtaagcgttaa..."></textarea><br>
-        <button onclick="submitSearch()">Submit</button>
+        <button id="submitButton" onclick="submitSearch()">Submit</button>
         <button onclick="clearText()">Clear</button>
         <button onclick="resetForm()">Reset</button>
         <p class="update-info"><strong>Update:</strong> 2025/01/22<br>
@@ -126,9 +126,29 @@
         <p><strong>Mai Xuan Cuong</strong>, cuongmai1902@gmail.com</p>
     </div>
     <script>
+        let API_URL = '';
+
+        // Add this function to get the API URL
+        async function initializeConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                API_URL = config.apiUrl;
+            } catch (error) {
+                console.error('Error loading config:', error);
+                // Fallback to current origin if config fails to load
+                API_URL = window.location.origin;
+            }
+        }
+
+        // Call this when the page loads
+        initializeConfig().then(() => {
+            console.log('API URL configured:', API_URL);
+        });
+
         // Store the full category map for reference
         let categoryMap = new Map();
-        API_URL = 'http://localhost:3000';
+
         async function submitSearch() {
             const searchInput = document.querySelector('#searchInput').value.trim();
             const resultsDiv = document.querySelector('#results');

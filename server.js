@@ -78,6 +78,12 @@ app.get('/api/search', (req, res) => {
     res.json({ results });
 });
 
+app.get('/api/config', (req, res) => {
+    // Get the base URL from the request or environment variable
+    const apiUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    res.json({ apiUrl });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
