@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Signaturing Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .update-info {
+            font-size: 12px;
+            color: gray;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            vertical-align: middle;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            /* 1px border for all cells */
+            padding: 12px 8px;
+            /* increased padding for better spacing */
+            text-align: left;
+            vertical-align: middle;
+            /* vertical centering */
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            /* make header row bold */
+            border-bottom: 2px solid #000;
+            /* slightly thicker bottom border for header */
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+            /* optional: hover effect */
+        }
+
+        .category-link {
+            color: #0066cc;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .category-link:hover {
+            color: #003d7a;
+        }
+
+        /* Style for category details section */
+        .category-details {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .category-details h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .dna-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .dna-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>DNA SIGNATURING DATABASE</h1>
+        <h2>Microalgae Identification Tool</h2>
+        <p>Paste ITS2 sequence into the text area below</p>
+        <textarea id="searchInput" placeholder=">sample sequence A\nctaaattgtaagcgttaa..."></textarea><br>
+        <button onclick="submitSearch()">Submit</button>
+        <button onclick="clearText()">Clear</button>
+        <button onclick="resetForm()">Reset</button>
+        <p class="update-info"><strong>Update:</strong> 2025/01/22<br>
+            This version is specific to the <a href="#">Scenedesmaceae</a> family only.</p>
+        <br />
+        <div id="results"></div>
+    </div>
+    <div class="container">
+        <h3>Cell Biology Lab</h3>
+        <p>Connect with us:</p>
+        <p><strong>Nguyen Minh Ly</strong>, nmly@ued.udn.vn</p>
+        <p><strong>Mai Xuan Cuong</strong>, cuongmai1902@gmail.com</p>
+    </div>
+    <script>
+        // Store the full category map for reference
+        let categoryMap = new Map();
+        API_URL = 'http://localhost:3000';
+        async function submitSearch() {
+            const searchInput = document.querySelector('#searchInput').value.trim();
+            const resultsDiv = document.querySelector('#results');
+
+            if (!searchInput) {
+                resultsDiv.innerHTML = '<p class="error">Please enter a search term</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(searchInput)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    return;
+                }
+
+                if (data.results.length === 0) {
+                    resultsDiv.innerHTML = '<p>No matches found</p>';
+                    return;
+                }
+
+                // Update categoryMap with search results
+                categoryMap.clear();
+                data.results.forEach(result => {
+                    if (!categoryMap.has(result.category)) {
+                        categoryMap.set(result.category, new Set());
+                    }
+                    categoryMap.get(result.category).add(result.dnaNode);
+                });
+
+                // Create results table
+                const table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>DNA Node</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.results.map(result => `
+                            <tr>
+                                <td>${result.dnaNode}</td>
+                                <td>
+                                    <span class="category-link" 
+                                          onclick="showCategoryDetails('${result.category}')"
+                                    >${result.category}</span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div id="categoryDetails"></div>
+            `;
+
+                resultsDiv.innerHTML = table;
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="error">Error connecting to server</p>';
+                console.error('Error:', error);
+            }
+        }
+
+        function clearText() {
+            document.querySelector('#searchInput').value = '';
+            // document.querySelector('#results').innerHTML = '';
+        }
+
+        function resetForm() {
+            document.querySelector('#searchInput').value = '>sample sequence A\nctaaattgtaagcgttaa...';
+            document.querySelector('#results').innerHTML = '';
+        }
+
+        function showCategoryDetails(category) {
+            const categoryDetailsDiv = document.getElementById('categoryDetails');
+            const dnaNodes = Array.from(categoryMap.get(category) || []);
+
+            const detailsHTML = `
+            <div class="category-details">
+                <h3>DNANodes in category: ${category}</h3>
+                <ul class="dna-list">
+                    ${dnaNodes.map(node => `
+                        <li>${node}</li>
+                    `).join('')}
+                </ul>
+                <p>Total DNANodes: ${dnaNodes.length}</p>
+            </div>
+        `;
+
+            categoryDetailsDiv.innerHTML = detailsHTML;
+
+            // Scroll to the details section
+            categoryDetailsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+    </script>
+</body>
+
+</html>
