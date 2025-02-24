@@ -14,6 +14,17 @@ app.use(express.static('public'));
 // Global Map to store our data
 let dnaDatabase = new Map();
 
+// Add this near the top of your server.js, after creating the app
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else {
+            next();
+        }
+    });
+}
+
 // Function to load XLSX file
 function loadXLSXFile() {
     try {
@@ -78,7 +89,9 @@ app.get('/api/search', (req, res) => {
 });
 
 app.get('/api/config', (req, res) => {
-    const apiUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    // Force HTTPS in production
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+    const apiUrl = process.env.API_URL || `${protocol}://${req.get('host')}`;
     console.log(`Server API running at ${apiUrl}`);
     res.json({ apiUrl });
 });
