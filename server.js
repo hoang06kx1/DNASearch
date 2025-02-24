@@ -65,7 +65,7 @@ app.get('/api/search', (req, res) => {
     // Search through the Map
     dnaDatabase.forEach((dnaNodes, category) => {
         dnaNodes.forEach(dnaNode => {
-            if (dnaNode.toLowerCase().includes(query)) {
+            if (query.includes(dnaNode.toLowerCase())) {
                 results.push({
                     dnaNode: dnaNode,
                     category: category
