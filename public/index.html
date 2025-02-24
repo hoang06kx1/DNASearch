@@ -239,9 +239,17 @@
             document.querySelector('#results').innerHTML = '';
         }
 
-        function showCategoryDetails(category) {
+        async function showCategoryDetails(category) {
+            console.log('Sending search request to:', `${API_URL}/api/search`);
+            const response = await fetch(`${API_URL}/api/search?category=${encodeURIComponent(category)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            const dnaNodes = Array.from(data.results.filter(result => result.category === category).map(result => result.dnaNode) || []);
+            console.log('DNA Nodes:', dnaNodes);
+            
             const categoryDetailsDiv = document.getElementById('categoryDetails');
-            const dnaNodes = Array.from(categoryMap.get(category) || []);
 
             const detailsHTML = `
             <div class="category-details">

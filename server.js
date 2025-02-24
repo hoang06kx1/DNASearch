@@ -47,10 +47,16 @@ function loadXLSXFile() {
             const category = row.category;
 
             if (!dnaDatabase.has(category)) {
-                dnaDatabase.set(category, []);
+                dnaDatabase.set(category, new Set());
             }
-            dnaDatabase.get(category).push(dnaNode);
+            dnaDatabase.get(category).add(dnaNode);
         });
+
+        // Convert Sets to Arrays
+        dnaDatabase.forEach((nodeSet, category) => {
+            dnaDatabase.set(category, Array.from(nodeSet));
+        });
+        console.log(dnaDatabase);
 
         console.log('XLSX file loaded successfully');
     } catch (error) {
@@ -64,26 +70,38 @@ loadXLSXFile();
 // Search endpoint
 app.get('/api/search', (req, res) => {
     const query = req.query.q?.toLowerCase();
+    const category = req.query.category;
 
-    if (!query) {
+    if (!query && !category) {
         return res.status(400).json({
-            error: 'Search query is required'
+            error: 'Search query or category is required'
         });
     }
 
     const results = [];
 
-    // Search through the Map
-    dnaDatabase.forEach((dnaNodes, category) => {
-        dnaNodes.forEach(dnaNode => {
-            if (query.includes(dnaNode.toLowerCase())) {
-                results.push({
-                    dnaNode: dnaNode,
-                    category: category
-                });
-            }
+    if (category) {
+        // If category is provided, return all nodes for that category
+        const nodesInCategory = dnaDatabase.get(category) || [];
+        nodesInCategory.forEach(dnaNode => {
+            results.push({
+                dnaNode: dnaNode,
+                category: category
+            });
         });
-    });
+    } else {
+        // Search through the Map for query matches
+        dnaDatabase.forEach((dnaNodes, category) => {
+            dnaNodes.forEach(dnaNode => {
+                if (query.includes(dnaNode.toLowerCase())) {
+                    results.push({
+                        dnaNode: dnaNode,
+                        category: category
+                    });
+                }
+            });
+        });
+    }
 
     res.json({ results });
 });
