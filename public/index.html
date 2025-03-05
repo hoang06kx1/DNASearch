@@ -202,8 +202,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>DNA Node</th>
-                            <th>Category</th>
+                            <th>Signature sequence</th>
+                            <th>Species/groups</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -253,13 +253,14 @@
 
             const detailsHTML = `
             <div class="category-details">
-                <h3>DNANodes in category: ${category}</h3>
+                <h4>List of signature sequences in Species/groups</h4>
+                <h3>${category}</h3>
                 <ul class="dna-list">
                     ${dnaNodes.map(node => `
                         <li>${node}</li>
                     `).join('')}
                 </ul>
-                <p>Total DNANodes: ${dnaNodes.length}</p>
+                <p>Total of signature sequence: <b>${dnaNodes.length}</b></p>
             </div>
         `;
 

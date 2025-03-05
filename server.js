@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'production') {
 function loadXLSXFile() {
     try {
         // Read the XLSX file (adjust the path as needed)
-        const workbook = XLSX.readFile(path.join(__dirname, 'data', 'dna_database.xlsx'));
+        const workbook = XLSX.readFile(path.join(__dirname, 'data', 'signature_sequence.xlsx'));
 
         // Get the first sheet
         const firstSheetName = workbook.SheetNames[0];
@@ -43,8 +43,8 @@ function loadXLSXFile() {
 
         // Process each row
         data.forEach(row => {
-            const dnaNode = row.DNANode;
-            const category = row.category;
+            const dnaNode = row['Signature sequence'];
+            const category = row['Species/groups'];
 
             if (!dnaDatabase.has(category)) {
                 dnaDatabase.set(category, new Set());
