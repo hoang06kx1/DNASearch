@@ -8,16 +8,44 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 40px;
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .main-content {
+            text-align: center;
+            margin: 40px auto;
+            max-width: 800px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .update-info {
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .contact-info {
+            text-align: right;
         }
 
         textarea {
@@ -106,7 +134,12 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="header">
+        <img src="/images/left-logo.png" alt="Left Logo" class="logo">
+        <img src="/images/right-logo.png" alt="Right Logo" class="logo">
+    </div>
+
+    <div class="main-content">
         <h1>DNA SIGNATURING DATABASE</h1>
         <h2>Microalgae Identification Tool</h2>
         <p>Paste ITS2 sequence into the text area below</p>
@@ -114,17 +147,22 @@
         <button id="submitButton" onclick="submitSearch()">Submit</button>
         <button onclick="clearText()">Clear</button>
         <button onclick="resetForm()">Reset</button>
-        <p class="update-info"><strong>Update:</strong> 2025/01/22<br>
-            This version is specific to the <a href="#">Scenedesmaceae</a> family only.</p>
-        <br />
         <div id="results"></div>
     </div>
-    <div class="container">
-        <h3>Cell Biology Lab</h3>
-        <p>Connect with us:</p>
-        <p><strong>Nguyen Minh Ly</strong>, nmly@ued.udn.vn</p>
-        <p><strong>Mai Xuan Cuong</strong>, cuongmai1902@gmail.com</p>
+
+    <div class="footer">
+        <div class="update-info">
+            <strong>Update:</strong> 2025/01/22<br>
+            This version is specific to the <a href="#">Scenedesmaceae</a> family only.
+        </div>
+        <div class="contact-info">
+            <h3>Cell Biology Lab</h3>
+            <p>Connect with us:</p>
+            <p><strong>Nguyen Minh Ly</strong>, nmly@ued.udn.vn</p>
+            <p><strong>Mai Xuan Cuong</strong>, cuongmai1902@gmail.com</p>
+        </div>
     </div>
+    
     <script>
         let API_URL = '';
 
@@ -248,7 +286,7 @@
             const data = await response.json();
             const dnaNodes = Array.from(data.results.filter(result => result.category === category).map(result => result.dnaNode) || []);
             console.log('DNA Nodes:', dnaNodes);
-            
+
             const categoryDetailsDiv = document.getElementById('categoryDetails');
 
             const detailsHTML = `
